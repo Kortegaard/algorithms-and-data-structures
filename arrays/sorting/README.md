@@ -9,4 +9,3 @@
 | Quick sort     | O(n^2)      | O(n*log(n))   |
 ```
 
-
