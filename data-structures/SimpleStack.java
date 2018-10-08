@@ -1,5 +1,6 @@
 import java.util.Arrays;
 import java.util.EmptyStackException;
+
 public class SimpleStack<E>{
 	
 	/**
@@ -93,6 +94,9 @@ public class SimpleStack<E>{
 		System.out.println();
 	}
 
+	/**
+	 * Examples of use, and test.
+	 */
 	public static void main (String[] args) {
 		Integer[] tester = new Integer[]{3,5,2};
 		SimpleStack<Integer> stack = new SimpleStack<Integer>(tester);
