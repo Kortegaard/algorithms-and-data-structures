@@ -1,3 +1,5 @@
+package javads.arrays;
+
 import java.util.Arrays;
 
 public class MaximumSubarray{

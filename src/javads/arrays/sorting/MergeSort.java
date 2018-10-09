@@ -1,3 +1,5 @@
+package javads.arrays.sorting;
+
 import java.util.*;
 
 public class MergeSort {

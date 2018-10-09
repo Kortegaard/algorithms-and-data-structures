@@ -1,3 +1,4 @@
+package javads.datastructures;
 
 public class BinarySearchTree<T extends Comparable<T>>{
 	

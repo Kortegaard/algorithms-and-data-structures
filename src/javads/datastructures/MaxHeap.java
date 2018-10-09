@@ -1,3 +1,5 @@
+package javads.datastructures;
+
 import java.util.Arrays;
 
 /**
