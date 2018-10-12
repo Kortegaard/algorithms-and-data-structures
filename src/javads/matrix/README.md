@@ -11,4 +11,11 @@ Static operation asand implementation of the functions. Such as
   	...
 ```
 
+### - Simplify code
+- [] the function that calculate entrance wise `ew...`, use the `entranceWise` function instead.
+
+### - Methods
+Methods to implement
+- [ ]
+
 
