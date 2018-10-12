@@ -1,9 +1,17 @@
 
 package javads.matrix;
 
+import java.util.Arrays;
+
+/**
+ * This class is a simple class representing a Matrix, and operations which can be done on a matrix.
+ * 
+ */
+
+
 public class Matrix{
 
-	int m,n;
+	public int m,n;
 	double[][] A;
 
 	/**
@@ -21,6 +29,52 @@ public class Matrix{
 			}
 		}
 	}
+
+	/**
+	 * Initializing the a vector (m x 1) matrix
+	 *
+	 * @param mtrx	2d-array to become Matrix
+	 */
+	public Matrix(double[] mtrx){
+		m = mtrx.length;
+		n = 1;
+		A = new double[m][n];
+		for(int i = 0; i < mtrx.length; i++){
+			A[i][0] = mtrx[i];
+		}
+	}
+
+	/**
+	 * Initializing the a Matrix based on a 2d-array
+	 *
+	 * @param mtrx	2d-array to become Matrix
+	 */
+	public Matrix(int[][] mtrx){
+		m = mtrx.length;
+		n = mtrx[0].length;
+		A = new double[m][n];
+		for(int i = 0; i < mtrx.length; i++){
+			for(int j = 0; j < mtrx[0].length; j++){
+				A[i][j] = (double) mtrx[i][j];
+			}
+		}
+	}
+
+	/**
+	 * Initializing the a vector (m x 1) matrix
+	 *
+	 * @param mtrx	2d-array to become Matrix
+	 */
+	public Matrix(int[] mtrx){
+		m = mtrx.length;
+		n = 1;
+		A = new double[m][n];
+		for(int i = 0; i < mtrx.length; i++){
+			A[i][0] = (double) mtrx[i];
+		}
+	}
+
+
 
 	/**
 	 * Initializing (m x n) matrix with all values 'val'. (a_ij) = val
@@ -62,7 +116,7 @@ public class Matrix{
 			for(int j = 0; j < m; j++){
 				double temp = 0;
 				for(int k = 0; k < n; k++){
-					temp += get(j,k) * B.get(j,i);
+					temp += get(j,k) * B.get(k,i);
 				}
 				C.set(j,i,temp);
 			}
@@ -347,6 +401,115 @@ public class Matrix{
 	}
 
 	/**
+	 * Swapping two rows in the matrix
+	 *
+	 * @param i 	index of one of the rows to swap
+	 * @param j 	index of the other row to swap
+	 */
+	public void swapRow(int i, int j){
+		double[] tempRow = A[i];
+		A[i] = A[j];
+		A[j] = tempRow;
+	}
+
+	/**
+	 * Adding a row to matrix
+	 *
+	 * <p>
+	 * Creating an array with height one higher than before, then moving
+	 * all elements from old array to new array
+	 *
+	 * TODO: 
+	 * </P>
+	 *
+	 * @param row 	array of doubles to add as row
+	 */
+	public void addRow(double[] row, boolean toEnd){
+		double[][] newA = new double[m+1][n];
+		for(int i = 0; i < m; i++){
+			newA[i] = A[i];
+		}
+		newA[m] = row;
+		A = newA;
+		m++;
+	}
+	
+	/**
+	 * Adding all the rows of matrix row, to the matrix A.
+	 *
+	 * @param row 	Matrix of which rows to add to current matrix
+	 */
+	public void addRow(Matrix row){
+		double[][] newA = new double[m+row.m][n];
+		for(int i = 0; i < m; i++){
+			newA[i] = A[i];
+		}
+		for(int j = 0; j < row.m; j++){
+			newA[m+j] = row.row(j).getArray()[0];
+		}
+		A = newA;
+		m += row.m;
+	}
+
+	/**
+	 * Creating a new matrix A[i..j][:] (i included, and j excluded), 
+	 * consisting of the rows specified from the parameters.
+	 *
+	 * @param i 	Beginning of range.
+	 * @param j 	End of range (not included).
+	 * @return 		((j-i)  x n) matrix, consisting of row as described above.
+	 */
+	public Matrix rowRange(int i, int j){
+		double[][] rowSub	= Arrays.copyOfRange(A, i,j);
+		return new Matrix(rowSub);
+	}
+
+	/**
+	 * Creating a new matrix A[:][i..j] (i included and j excluded)
+	 * consisting of a range of the columns.
+	 * 
+	 * <p>
+	 *	Expample of use
+	 *
+	 *		A '=' [[ 1  2  3 ],
+	 *			   [ 4  5  6 ],
+	 *			   [ 7  8  9 ]]
+	 *
+	 * Then 
+	 * 		A.colRange(0,2) = [[ 1  2 ],
+	 *	 					   [ 4  5 ],
+	 *						   [ 7  8 ]]
+	 *
+	 * </p>
+	 *
+	 * @param i 	Beginning of range.
+	 * @param j 	End of range (not included).
+	 * @return 		( m x (j-i)) matrix, consisting of cols as described above.
+	 */
+	public Matrix colRange(int i, int j){
+		return T().rowRange(i,j).T();
+	}
+
+	/**
+	 * Creating a row vector ( Matrix 1 x n ), consisting of the i'th row
+	 *
+	 * @param i  	the row to 'vectorize'
+	 * @return 		( 1 x n ) matrix, consisting of the i'th row.
+	 */
+	public Matrix row(int i){
+		return new Matrix(A[i]).T();
+	}
+
+	/**
+	 * getting the array that the matrix is build of
+	 *
+	 * @return 	dobule[m][n] array of the matrix.
+	 */
+	public double[][] getArray(){
+		return A;
+	}
+
+	/**
 	 * Few examples of the use of matrix.
 	 */
 	public static void main (String[] args) {
@@ -378,6 +541,7 @@ public class Matrix{
 		System.out.println("max: " + N2.max());
 		System.out.println("min: " + N2.min());
 		System.out.println("mean: " + N2.mean());
+		System.out.println();
 			
 	}
 }
