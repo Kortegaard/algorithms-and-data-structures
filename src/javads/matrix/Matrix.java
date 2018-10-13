@@ -219,102 +219,6 @@ public class Matrix{
 	public double get(int i, int j){
 		return this.A[i][j];
 	}
-
-
-
-	/**
-	 * element-wise multiplication
-	 *
-	 * @param B 	Matrix to multiply to A (entrance wise)
-	 * @return 		matrix (a_{ij} * b_{ij})_ij
-	 */
-	public Matrix ewTimes(Matrix B){
-		Matrix C = new Matrix(m,n);
-		for(int i = 0; i < m; i++){
-			for(int j = 0; j < n; j++){
-				C.set(i,j,get(i,j)*B.get(i,j));
-			}
-		}
-		return C;
-	}
-
-	/**
-	 * element-wise mutliplication
-	 *
-	 * @param B 	Matrix to divide with A (element wise)
-	 * @return 		(a_ij/b_ij)_ij
-	 */
-	public Matrix ewDivide(Matrix B){
-		Matrix C = new Matrix(m,n);
-		for(int i = 0; i < m; i++){
-			for(int j = 0; j < n; j++){
-				if(B.get(i,j) == 0){
-					throw new IllegalArgumentException("Zero division error");
-				}
-				C.set(i,j,get(i,j)/B.get(i,j));
-			}
-		}
-		return C;
-	}
-
-	/**
-	 * matrix (a/(a_ij)), element wise devision.
-	 */
-	public Matrix ewDivide(double a){
-		Matrix C = new Matrix(m,n);
-		for(int i = 0; i < m; i++){
-			for(int j = 0; j < n; j++){
-				if(get(i,j) == 0){
-					throw new IllegalArgumentException("Zero division error");
-				}
-				C.set(i,j,a/get(i,j));
-			}
-		}
-		return C;
-	}
-
-	/**
-	 * 'default' for ewDivide
-	 *
-	 * @return (1/a_ij)_ij
-	 */
-	public Matrix ewDivide(){
-		return ewDivide(1.0);
-	}
-
-	/**
-	 * taking the exponential function to every element in A
-	 *
-	 * @return (exp(a_ij))_ij
-	 */
-	public Matrix ewExp(){
-		Matrix C = new Matrix(m,n);
-		for(int i = 0; i < m; i++){
-			for(int j = 0; j < n; j++){
-				C.set(i,j,Math.exp(get(i,j)));
-			}
-		}
-		return C;
-	}
-
-	/**
-	 * taking logarithm to every element in A
-	 *
-	 * @return (log(a_ij))_ij
-	 */
-	public Matrix ewLog(){
-		Matrix C = new Matrix(m,n);
-		for(int i = 0; i < m; i++){
-			for(int j = 0; j < n; j++){
-				if(get(i,j) <= 0){
-					throw new IllegalArgumentException("log error - Log(x) only defined for x>0");
-				}
-				C.set(i,j,Math.log(get(i,j)));
-			}
-		}
-		return C;
-	}
-
 	/**
 	 * finding maximum element in the matrix.
 	 *
@@ -389,7 +293,7 @@ public class Matrix{
 	 *
 	 * @return	identity matrix
 	 */
-	public static Matrix identity(int n, int m){
+	public static Matrix identity(int m, int n){
 		Matrix C = new Matrix(m,n);
 		for(int i = 0; i < m; i++){
 			for(int j = 0; j < n; j++){
@@ -508,7 +412,20 @@ public class Matrix{
 	public double[][] getArray(){
 		return A;
 	}
-
+	
+	/**
+	 * using function on every entry on the matrix.
+	 *
+	 * <p>
+	 *	Goes through each of the entries in matrix C, which has the same shape as A, and uses function
+	 *	h on entrance a_ij, and sets c_ij = d(a_ij), and this we will end up with matrix
+	 *
+	 *						  C = (c_ij)_ij = (d(a_ij))_ij
+	 * </p>
+	 *
+	 * @param d 	function to use on the entries
+	 * @return 		matrix C = (c_ij) = (d(a_ij))_ij
+	 */
 	public Matrix entranceWise(Function<Double, Double> d){
 		Matrix C = new Matrix(m,n);
 		for(int i = 0; i < m; i++){
@@ -518,6 +435,83 @@ public class Matrix{
 		}
 		return C;
 	}
+	
+	/**
+	 * Using a function on the two matricies A, B entrance wise, to create the retuning matrix C.
+	 * 
+	 * <p>
+	 *	This function simply goes thorugh all the entries in matrix C (same shape as matrix A),
+	 *	and uses all function d, on entrances a_ij, and b_ij, and sets c_ij = d(a_ij, b_ij).
+	 *	Thus the result will be 
+	 *		
+	 *							C = (c_ij)_ij = (d(a_ij, b_ij))_ij
+	 *
+	 *	Examples of use
+	 *	
+	 *	A = [[ 1  2  3 ]      	B = [[ 1  0  0 ]  
+	 *		 [ 4  5  6 ]      		 [ 0  2  0 ] 
+	 *		 [ 7  8  9 ]]     		 [ 0  0  3 ]]
+	 *
+	 * Then we will multiply these entrance wise, using the function (a,b) -> a*b
+	 *
+	 * Matrix C = A.entranceWise(B, (a,b) -> a*b);
+	 *
+	 * 	 C = [[ 1  0   0  ] 
+	 *    	  [ 0  10  0  ] 
+	 *    	  [ 0  0   27 ]]
+	 *
+	 * </p>
+	 * 
+	 * @param B 	Matrix
+	 * @param d 	The function which will be used on A, B entrance wise.
+	 * @return 		Matrix (d(a_ij, b_ij))_ij
+	 */
+	public Matrix entranceWise(Matrix B ,FunctionTwoParameters<Double,Double, Double> d){
+		Matrix C = new Matrix(m,n);
+		for(int i = 0; i < m; i++){
+			for(int j = 0; j < n; j++){
+				Double d1 = new Double(get(i,j));
+				Double d2 = new Double(B.get(i,j));
+				C.set(i,j, (double) d.apply(d1,d2));
+			}
+		}
+		return C;
+	}
+	
+	/**
+	 * matrix (a/(a_ij)), element wise devision.
+	 */
+	public Matrix ewDivide(double a){
+		return entranceWise(x -> a/x);
+	}
+
+	/**
+	 * 'default' for ewDivide
+	 *
+	 * @return (1/a_ij)_ij
+	 */
+	public Matrix ewDivide(){
+		return ewDivide(1.0);
+	}
+
+	/**
+	 * taking the exponential function to every element in A
+	 *
+	 * @return (exp(a_ij))_ij
+	 */
+	public Matrix ewExp(){
+		return entranceWise(x -> Math.exp(x));
+	}
+
+	/**
+	 * taking logarithm to every element in A
+	 *
+	 * @return (log(a_ij))_ij
+	 */
+	public Matrix ewLog(){
+		return entranceWise(x -> Math.log(x));
+	}
+
 
 	/**
 	 * Few examples of the use of matrix.
@@ -557,26 +551,43 @@ public class Matrix{
 		N1.print();
 		System.out.println();
 		Matrix N3 = N1.entranceWise(x -> Math.exp(x));
-		N3 = N1.entranceWise(x -> Math.exp(x));
+		//Matrix N3 = N1.entranceWise(Math.exp);
+		N3.print();
+		//N3 = N1.entranceWise(x -> Math.exp(x));
 
-		int n = 20_000_000;
-		long startTime = System.nanoTime();
-		for(int i = 0; i < n; i++){
-			N3 = N1.entranceWise(x -> Math.exp(x));
-		}
-		long endTime = System.nanoTime();
-		long duration = (endTime - startTime)/1000000;
 		
-		startTime = System.nanoTime();
-		for(int i = 0; i < n; i++){
-			N3 = N1.ewExp();
-		}
-		endTime = System.nanoTime();
-		long duration2 = (endTime - startTime)/1000000;
+		// Timing the entrancewise vs the other
+		// int n = 20_000_000;
+		// long startTime = System.nanoTime();
+		// for(int i = 0; i < n; i++){
+		// 	N3 = N1.entranceWise(x -> Math.exp(x));
+		// }
+		// long endTime = System.nanoTime();
+		// long duration = (endTime - startTime)/1000000;
+		// 
+		// startTime = System.nanoTime();
+		// for(int i = 0; i < n; i++){
+		// 	N3 = N1.ewExp();
+		// }
+		// endTime = System.nanoTime();
+		// long duration2 = (endTime - startTime)/1000000;
 
-		System.out.println("First (lambda): " + duration + " ms");
-		System.out.println("Second (eqexp): " + duration2 + " ms");
+		// System.out.println("First (lambda): " + duration + " ms");
+		// System.out.println("Second (eqexp): " + duration2 + " ms");
 
 		//N3.print();
+
+		
+		Matrix I = Matrix.identity(2,3);
+		I.print();
+
+		Matrix N4 = N3.entranceWise(I, (a,b) -> a*b);
+		N4.print();	
+
+	}
+
+	@FunctionalInterface
+	interface FunctionTwoParameters<One, Two, Three> {
+	    public Three apply(One one, Two two);
 	}
 }
