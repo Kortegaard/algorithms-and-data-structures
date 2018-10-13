@@ -1,6 +1,6 @@
-
 package javads.matrix;
 
+import java.util.function.*;
 import java.util.Arrays;
 
 /**
@@ -509,6 +509,16 @@ public class Matrix{
 		return A;
 	}
 
+	public Matrix entranceWise(Function<Double, Double> d){
+		Matrix C = new Matrix(m,n);
+		for(int i = 0; i < m; i++){
+			for(int j = 0; j < n; j++){
+				C.set(i,j,(double) d.apply(new Double(get(i,j))));
+			}
+		}
+		return C;
+	}
+
 	/**
 	 * Few examples of the use of matrix.
 	 */
@@ -530,6 +540,8 @@ public class Matrix{
 		//System.out.println();
 
 		Matrix N1 = new Matrix(2,3,2);
+
+
 		N1.set(0,2,3);
 		N1.set(1,0,1);
 		Matrix N2 = new Matrix(2,3,3);
@@ -542,6 +554,29 @@ public class Matrix{
 		System.out.println("min: " + N2.min());
 		System.out.println("mean: " + N2.mean());
 		System.out.println();
-			
+		N1.print();
+		System.out.println();
+		Matrix N3 = N1.entranceWise(x -> Math.exp(x));
+		N3 = N1.entranceWise(x -> Math.exp(x));
+
+		int n = 20_000_000;
+		long startTime = System.nanoTime();
+		for(int i = 0; i < n; i++){
+			N3 = N1.entranceWise(x -> Math.exp(x));
+		}
+		long endTime = System.nanoTime();
+		long duration = (endTime - startTime)/1000000;
+		
+		startTime = System.nanoTime();
+		for(int i = 0; i < n; i++){
+			N3 = N1.ewExp();
+		}
+		endTime = System.nanoTime();
+		long duration2 = (endTime - startTime)/1000000;
+
+		System.out.println("First (lambda): " + duration + " ms");
+		System.out.println("Second (eqexp): " + duration2 + " ms");
+
+		//N3.print();
 	}
 }
