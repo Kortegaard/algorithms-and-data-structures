@@ -219,6 +219,7 @@ public class Matrix{
 	public double get(int i, int j){
 		return this.A[i][j];
 	}
+
 	/**
 	 * finding maximum element in the matrix.
 	 *
@@ -233,6 +234,68 @@ public class Matrix{
 		}
 		return maxsofar;
 	}
+
+	/**
+	 * Fining max in each row, and making it to a column vector.
+	 *
+	 * @return (max(a_ij))_i
+	 */
+	public Matrix maxInRow(){
+		Matrix maxsofar = new Matrix(m,1,0);
+	     	
+		for(int i = 0; i < m; i++){
+			for(int j = 0; j < n; j++){
+				double val = ( (get(i,j) > maxsofar.get(i,0)) ? get(i,j) : maxsofar.get(i,0) );
+				maxsofar.set(i, 0, val);
+			}
+		}
+		return maxsofar;
+	}
+
+
+	public Matrix argmax(int axis){
+		switch(axis){
+			case 0:
+				return argmaxAxis0();
+			case 1:
+				return argmaxAxis1();
+			default:
+				return null;
+		}
+	}
+
+	
+	private Matrix argmaxAxis1(){
+		Matrix argmaxsofar = new Matrix(m,1,0);	
+		Matrix maxsofar = new Matrix(m,1,0);	
+
+		for(int i = 0; i < m; i++){
+			for(int j = 0; j < n; j++){
+				if(get(i,j) > maxsofar.get(i,0)){
+					maxsofar.set(i, 0, get(i,j));
+					argmaxsofar.set(i,0,j);
+				}
+			}
+		}
+		return argmaxsofar;
+	}
+
+	
+	private Matrix argmaxAxis0(){
+		Matrix argmaxsofar = new Matrix(1,n,0);	
+		Matrix maxsofar = new Matrix(1,n,0);	
+
+		for(int i = 0; i < m; i++){
+			for(int j = 0; j < n; j++){
+				if(get(i,j) > maxsofar.get(0,j)){
+					maxsofar.set(0, j, get(i,j));
+					argmaxsofar.set(0,j,i);
+				}
+			}
+		}
+		return argmaxsofar;
+	}
+
 
 	/**
 	 * finding minimum element in the matrix
@@ -262,6 +325,49 @@ public class Matrix{
 			}
 		}
 		return sum/(n*m);
+	}
+
+	public double sum(){
+		double sumsofar = 0;
+		for(int i = 0; i < m; i++){
+			for(int j = 0; j < n; j++){
+				sumsofar += get(i,j);
+			}
+		}
+		return sumsofar;
+	}
+	
+	public Matrix sum(int axis){
+		switch(axis){
+			case 0:
+				return sumInColumn();
+			case 1:
+				return sumInRow();
+			default:
+				return null;
+		}
+	}
+
+	private Matrix sumInColumn(){
+		Matrix sumsofar = new Matrix(0,n,0);
+		for(int i = 0; i < m; i++){
+			for(int j = 0; j < n; j++){
+				sumsofar.set(0, j, sumsofar.get(0,j)+get(i,j));
+			}
+		}
+		return sumsofar;
+
+	}
+
+	private Matrix sumInRow(){
+		Matrix sumsofar = new Matrix(m,1,0);
+		for(int i = 0; i < m; i++){
+			for(int j = 0; j < n; j++){
+				sumsofar.set(i, 0, sumsofar.get(i,0)+get(i,j));
+			}
+		}
+		return sumsofar;
+
 	}
 
 	/**
@@ -328,7 +434,7 @@ public class Matrix{
 	 *
 	 * @param row 	array of doubles to add as row
 	 */
-	public void addRow(double[] row, boolean toEnd){
+	public void addRow(double[] row){
 		double[][] newA = new double[m+1][n];
 		for(int i = 0; i < m; i++){
 			newA[i] = A[i];
@@ -355,6 +461,25 @@ public class Matrix{
 		m += row.m;
 	}
 
+	/**
+	 * 
+	 *
+	 * @param col 	Matrix of which column to add to current matrix
+	 */
+	public void addColumnLeft(Matrix col){
+		double[][] newA = new double[m][n+col.n];
+		for(int i = 0; i < m; i++){
+			for(int j = 0; j < n+col.n; j++){
+				if (j < col.n){
+					newA[i][j] = col.get(i,j);
+				}else{
+					newA[i][j] = get(i,j-col.n);
+				}
+			}
+		}
+		A = newA;
+		n += col.n;
+	}
 	/**
 	 * Creating a new matrix A[i..j][:] (i included, and j excluded), 
 	 * consisting of the rows specified from the parameters.
@@ -472,6 +597,7 @@ public class Matrix{
 			for(int j = 0; j < n; j++){
 				Double d1 = new Double(get(i,j));
 				Double d2 = new Double(B.get(i,j));
+				System.out.println("a: " + get(i,j) + ", b: " + B.get(i,j) + ", d(a,b): " + d.apply(d1,d2));
 				C.set(i,j, (double) d.apply(d1,d2));
 			}
 		}
@@ -511,6 +637,19 @@ public class Matrix{
 	public Matrix ewLog(){
 		return entranceWise(x -> Math.log(x));
 	}
+
+	
+	
+	static public void randomRowPermutation(Matrix... args){
+		int numOfRows = args[0].m;
+		for(int i = 0; i < numOfRows; i++){
+			int newpos = (int) (Math.random() * ((numOfRows-1) + 1)) + 0;
+			for(Matrix mat: args){
+				mat.swapRow(i,newpos);
+			}
+		}
+	}
+	
 
 
 	/**
@@ -587,7 +726,7 @@ public class Matrix{
 	}
 
 	@FunctionalInterface
-	interface FunctionTwoParameters<One, Two, Three> {
+	public interface FunctionTwoParameters<One, Two, Three> {
 	    public Three apply(One one, Two two);
 	}
 }
